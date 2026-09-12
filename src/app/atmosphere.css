@@ -1,0 +1,26 @@
+body { isolation:isolate; }
+.ambient-background { position:fixed; inset:0; z-index:-1; pointer-events:none; background:radial-gradient(ellipse at 72% 0%,color-mix(in srgb,var(--accent) 13%,transparent),transparent 55%),radial-gradient(ellipse at 14% 80%,color-mix(in srgb,var(--accent-dark) 10%,transparent),transparent 52%),linear-gradient(115deg,transparent 30%,#ffffff02 45%,transparent 60%); }
+.ambient-background::after { content:''; position:absolute; inset:0; opacity:.32; background-image:linear-gradient(#ffffff06 1px,transparent 1px),linear-gradient(90deg,#ffffff06 1px,transparent 1px); background-size:84px 84px; mask-image:linear-gradient(transparent,#000 20%,#000 65%,transparent); }
+.cursor-light { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:35; mix-blend-mode:screen; }
+.page { min-height:calc(100vh - 86px); }
+.header { background:color-mix(in srgb,var(--bg-2) 90%,transparent); backdrop-filter:blur(18px); }
+.side-rail { background:linear-gradient(160deg,var(--accent-soft),transparent 35%),var(--bg-2); }
+.nav a { min-height:48px; }
+.nav a.active { box-shadow:inset 3px 0 var(--accent); }
+.panel,.case-card { background:linear-gradient(145deg,#ffffff03,transparent 45%),var(--panel); box-shadow:inset 0 1px #ffffff04,0 10px 30px #00000018; }
+.upgrade-arena { background:radial-gradient(ellipse at 50% 30%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 68%),linear-gradient(145deg,#ffffff03,transparent),var(--panel); box-shadow:inset 0 1px #ffffff09,0 20px 60px #0002; }
+.arena-slot { background:linear-gradient(170deg,var(--accent-soft),transparent 70%),var(--bg-2); }
+.gauge svg { filter:drop-shadow(0 0 14px var(--accent-soft)); }
+.arena-label { font-size:12px; letter-spacing:.4px; }
+.chance-control label,.upgrade-price-fields label,.chance-control p,.upgrade-filter-note { font-size:14px; }
+.case-card img { transition:transform .45s cubic-bezier(.2,.7,.2,1); }
+.case-card:hover img { transform:translateY(-5px) scale(1.035); }
+.case-card .name { white-space:normal; min-height:44px; line-height:1.45; }
+.reset-progress { display:flex; align-items:center; justify-content:space-between; gap:24px; margin-top:32px; padding:22px; border:1px solid var(--line); border-radius:14px; background:var(--bg-2); }
+.reset-progress h2 { font-size:18px; margin:0 0 8px; }
+.reset-progress p { font-size:14px; color:var(--muted); margin:0; max-width:650px; }
+.reset-progress .btn { flex-shrink:0; }
+.reset-check { display:flex; gap:12px; align-items:flex-start; margin-top:20px; font-size:14px; }
+.reset-check input { margin-top:4px; accent-color:var(--red); }
+@media(max-width:760px) { .nav a { min-height:52px; font-size:14px; } .nav a.active { box-shadow:inset 0 -2px var(--accent); } .side-rail { background:var(--bg-2); } .reset-progress { flex-direction:column; align-items:stretch; } .case-card .name { min-height:42px; } .arena-label { font-size:12px; } }
+@media(prefers-reduced-motion:reduce),(pointer:coarse) { .cursor-light { display:none; } }
