@@ -6,7 +6,7 @@ import { useEffect, useRef } from 'react';
 // Users can tune it in the theme menu (strength 0–100, stored in localStorage as yd_fx).
 
 export type Effects = { trail: number; glow: number; motion: number };
-export const DEFAULT_FX: Effects = { trail: 35, glow: 60, motion: 100 };
+export const DEFAULT_FX: Effects = { trail: 35, glow: 40, motion: 100 };
 export function readEffects(): Effects {
   try { const saved = JSON.parse(localStorage.getItem('yd_fx') ?? 'null'); if (saved && typeof saved === 'object') return { ...DEFAULT_FX, ...saved }; } catch {}
   return DEFAULT_FX;
