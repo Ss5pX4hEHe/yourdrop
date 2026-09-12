@@ -34,7 +34,7 @@ export function ThemePicker() {
       </div>
       <span className="eyebrow">ЭФФЕКТЫ</span>
       <div className="theme-custom">
-        <label>След курсора · {fx.trail}%<input type="range" min="0" max="100" value={fx.trail} onChange={e => effects({ trail: Number(e.target.value) })} /></label>
+        <label>Свет курсора · {fx.trail}% <small style={{ display: 'block', fontSize: 11 }}>до 20% — только фонарик, выше — со шлейфом</small><input type="range" min="0" max="100" value={fx.trail} onChange={e => effects({ trail: Number(e.target.value) })} /></label>
         <label>Подсветка · {fx.glow}%<input type="range" min="0" max="100" value={fx.glow} onChange={e => effects({ glow: Number(e.target.value) })} /></label>
         <label>Анимации · {fx.motion}%<input type="range" min="0" max="100" value={fx.motion} onChange={e => effects({ motion: Number(e.target.value) })} /></label>
       </div>

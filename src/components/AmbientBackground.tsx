@@ -6,7 +6,7 @@ import { useEffect, useRef } from 'react';
 // Users can tune it in the theme menu (strength 0–100, stored in localStorage as yd_fx).
 
 export type Effects = { trail: number; glow: number; motion: number };
-export const DEFAULT_FX: Effects = { trail: 60, glow: 60, motion: 100 };
+export const DEFAULT_FX: Effects = { trail: 35, glow: 60, motion: 100 };
 export function readEffects(): Effects {
   try { const saved = JSON.parse(localStorage.getItem('yd_fx') ?? 'null'); if (saved && typeof saved === 'object') return { ...DEFAULT_FX, ...saved }; } catch {}
   return DEFAULT_FX;
@@ -31,7 +31,7 @@ export function AmbientBackground() {
     let points: P[] = [];
     let frame = 0, color = '', ratio = 1, strength = readEffects().trail / 100;
     let target: { x: number; y: number } | null = null, head: { x: number; y: number } | null = null, idleFrames = 0;
-    const LIFE = 900;
+    const LIFE = 650;
     const theme = () => { color = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#b49aff'; };
     const clear = () => { cancelAnimationFrame(frame); frame = 0; points = []; head = null; ctx.clearRect(0, 0, innerWidth, innerHeight); };
     const resize = () => { ratio = Math.min(devicePixelRatio || 1, 1.5); el.width = Math.round(innerWidth * ratio); el.height = Math.round(innerHeight * ratio); ctx.setTransform(ratio, 0, 0, ratio, 0, 0); };
@@ -41,7 +41,7 @@ export function AmbientBackground() {
       if (target) {
         if (!head) head = { ...target };
         const dx = target.x - head.x, dy = target.y - head.y;
-        head.x += dx * .42; head.y += dy * .42;
+        head.x += dx * .3; head.y += dy * .3;
         const moving = Math.abs(dx) + Math.abs(dy) > .3;
         idleFrames = moving ? 0 : idleFrames + 1;
         if (moving || idleFrames < 6) points.push({ x: head.x, y: head.y, at: now });
@@ -51,26 +51,28 @@ export function AmbientBackground() {
       ctx.clearRect(0, 0, innerWidth, innerHeight);
       if (!points.length) return;
       ctx.globalCompositeOperation = 'lighter';
-      // Ribbon: a smooth path through the recorded points, fading and thinning towards the tail.
-      for (let i = 1; i < points.length; i++) {
-        const a = points[i - 1], b = points[i];
-        const life = 1 - (now - b.at) / LIFE;
-        if (life <= 0) continue;
-        const width = (8 + life * 26) * strength;
-        ctx.strokeStyle = color; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-        ctx.globalAlpha = .028 * life * strength; ctx.lineWidth = width * 3.2;
-        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-        ctx.globalAlpha = .07 * life * strength; ctx.lineWidth = width;
-        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-      }
-      // Halo around the head so the light does not "start" abruptly.
-      const last = points[points.length - 1], life = 1 - (now - last.at) / LIFE;
-      if (life > 0) {
-        const radius = 120 + 60 * strength;
+      // Main element: a soft flashlight around the cursor head. Present at any strength.
+      const last = points[points.length - 1], headLife = 1 - (now - last.at) / LIFE;
+      if (headLife > 0) {
+        const radius = 150 + 110 * strength;
         const glow = ctx.createRadialGradient(last.x, last.y, 0, last.x, last.y, radius);
-        glow.addColorStop(0, color); glow.addColorStop(1, 'transparent');
-        ctx.globalAlpha = .09 * life * strength; ctx.fillStyle = glow;
+        glow.addColorStop(0, color); glow.addColorStop(.35, color); glow.addColorStop(1, 'transparent');
+        ctx.globalAlpha = (.06 + .06 * strength) * headLife; ctx.fillStyle = glow;
         ctx.fillRect(last.x - radius, last.y - radius, radius * 2, radius * 2);
+      }
+      // Faint ribbon behind it, only when the effect is turned up.
+      if (strength > .2) {
+        const tail = (strength - .2) / .8;
+        for (let i = 1; i < points.length; i++) {
+          const a = points[i - 1], b = points[i];
+          const life = 1 - (now - b.at) / LIFE;
+          if (life <= 0) continue;
+          ctx.strokeStyle = color; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+          ctx.globalAlpha = .012 * life * tail; ctx.lineWidth = (30 + life * 60) * tail;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          ctx.globalAlpha = .03 * life * tail; ctx.lineWidth = (6 + life * 14) * tail;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
       }
       ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
       frame = requestAnimationFrame(paint);
@@ -82,7 +84,7 @@ export function AmbientBackground() {
     };
     const leave = () => { target = null; };
     const visibility = () => { if (document.hidden) clear(); };
-    const fx = (event: Event) => { strength = ((event as CustomEvent<Effects>).detail?.trail ?? 60) / 100; if (strength <= 0) clear(); };
+    const fx = (event: Event) => { strength = ((event as CustomEvent<Effects>).detail?.trail ?? DEFAULT_FX.trail) / 100; if (strength <= 0) clear(); };
     theme(); resize();
     applyEffects(readEffects());
     const observer = new MutationObserver(theme);

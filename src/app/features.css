@@ -119,3 +119,19 @@ html[data-cards=compact] .pick-scroll { grid-auto-columns:minmax(140px,1fr); }
   .theme-menu { width:min(92vw,300px); }
 }
 @media(max-width:1000px) { .route-steps { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+
+/* ---- upgrade gauge polish ---- */
+.upgrade-arena .gauge { position:relative; isolation:isolate; }
+.upgrade-arena .gauge::before { content:""; position:absolute; inset:4%; border-radius:50%; background:radial-gradient(circle,var(--accent-soft) 0%,color-mix(in srgb,var(--accent) 10%,transparent) 45%,transparent 72%); filter:blur(14px); z-index:-1; transition:background .4s; }
+.upgrade-arena.spinning .gauge::before { animation:gauge-pulse 1.1s ease-in-out infinite alternate; }
+.upgrade-arena.win .gauge::before { background:radial-gradient(circle,#71dfb340 0%,#71dfb318 45%,transparent 72%); }
+.upgrade-arena.lose .gauge::before { background:radial-gradient(circle,#ff8d9a30 0%,#ff8d9a12 45%,transparent 72%); }
+@keyframes gauge-pulse { from { opacity:.55; transform:scale(.96); } to { opacity:1; transform:scale(1.04); } }
+.upgrade-arena .gauge svg { filter:drop-shadow(0 10px 24px #0007); }
+.upgrade-arena .gauge .center b { text-shadow:0 2px 14px #000a; letter-spacing:-1.5px; }
+.upgrade-arena .gauge .center small { text-transform:uppercase; letter-spacing:1.2px; font-size:11px; }
+.upgrade-arena .gauge .center .x { padding:3px 9px; border-radius:999px; background:var(--accent-soft); color:var(--accent); font-weight:700; }
+.upgrade-arena .arena-slot { box-shadow:inset 0 1px #ffffff09,0 10px 30px #0003; }
+.upgrade-arena .arena-slot.filled .arena-art img { filter:drop-shadow(0 16px 18px #0007); }
+.upgrade-arena.win .arena-slot.target { box-shadow:0 0 0 1px var(--green),0 0 40px #71dfb322; }
+.upgrade-arena.lose .arena-slot:not(.target) { opacity:.55; }

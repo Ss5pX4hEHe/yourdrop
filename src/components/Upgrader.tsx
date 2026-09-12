@@ -155,12 +155,21 @@ export function Upgrader() {
       <div className="gauge-wrap sticky-upgrade">
         <div className={`gauge ${phase === 'win' ? 'win' : phase === 'lose' ? 'lose' : ''}`}>
           <svg viewBox="0 0 280 280">
-            <circle cx="140" cy="140" r={R} fill="none" stroke="var(--line)" strokeWidth="16" />
-            {[false, true].map(mirror => <circle key={String(mirror)} cx="140" cy="140" r={R} fill="none" stroke={phase === 'lose' ? 'var(--red)' : phase === 'win' ? 'var(--green)' : 'var(--violet-2)'} strokeWidth="16" strokeDasharray={dash} transform={`${mirror ? 'translate(280 0) scale(-1 1) ' : ''}rotate(90 140 140)`} style={{ transition: 'stroke-dasharray .3s' }} />)}
-            {Array.from({ length: 30 }, (_, i) => <line key={i} x1="140" y1="34" x2="140" y2={i % 5 === 0 ? 42 : 38} transform={`rotate(${i * 12} 140 140)`} stroke="var(--muted)" opacity=".4" />)}
+            <defs>
+              <radialGradient id="ug-disc" cx="50%" cy="42%" r="60%"><stop offset="0" stopColor="var(--panel-2)" /><stop offset="1" stopColor="var(--bg)" /></radialGradient>
+              <linearGradient id="ug-sector" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor={phase === 'lose' ? 'var(--red)' : phase === 'win' ? 'var(--green)' : 'var(--accent-dark)'} /><stop offset="1" stopColor={phase === 'lose' ? 'var(--red)' : phase === 'win' ? 'var(--green)' : 'var(--accent)'} /></linearGradient>
+              <filter id="ug-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+              <filter id="ug-shadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#000" floodOpacity=".7" /></filter>
+            </defs>
+            <circle cx="140" cy="140" r="104" fill="url(#ug-disc)" stroke="var(--line)" />
+            <circle cx="140" cy="140" r="118" fill="none" stroke="var(--bg)" strokeWidth="24" />
+            <circle cx="140" cy="140" r="118" fill="none" stroke="var(--line-2)" strokeWidth="18" opacity=".55" />
+            {[false, true].map(mirror => <circle key={String(mirror)} cx="140" cy="140" r={R} fill="none" stroke="url(#ug-sector)" strokeWidth="18" strokeLinecap="butt" strokeDasharray={dash} filter="url(#ug-glow)" transform={`${mirror ? 'translate(280 0) scale(-1 1) ' : ''}rotate(90 140 140)`} style={{ transition: 'stroke-dasharray .3s' }} />)}
+            {Array.from({ length: 60 }, (_, i) => <line key={i} x1="140" y1="30" x2="140" y2={i % 5 === 0 ? 40 : 36} transform={`rotate(${i * 6} 140 140)`} stroke={i % 5 === 0 ? 'var(--text)' : 'var(--muted)'} strokeWidth={i % 5 === 0 ? 1.6 : 1} opacity={i % 5 === 0 ? .8 : .35} />)}
             <g ref={needle} style={{ transform: `rotate(${180 + angle}deg)`, transformOrigin: '140px 140px', transition: phase === 'spinning' ? `transform ${fast ? 0.9 : 4.5}s cubic-bezier(.15,.8,.1,1)` : 'none' }}>
-              <polygon points="140,9 135,29 145,29" fill="var(--gold)" />
-              <circle cx="140" cy="20" r="2" fill="var(--gold-2)" />
+              <path d="M125 2 L155 2 L140 36 Z" fill="#ffffff" stroke="#0b0c11" strokeWidth="2.5" strokeLinejoin="round" filter="url(#ug-shadow)" />
+              <path d="M131 6 L149 6 L140 27 Z" fill={phase === 'lose' ? 'var(--red)' : phase === 'win' ? 'var(--green)' : 'var(--accent)'} />
+              <circle cx="140" cy="46" r="3" fill="#ffffff" stroke="#0b0c11" strokeWidth="1.5" />
             </g>
           </svg>
           <div className="center">
