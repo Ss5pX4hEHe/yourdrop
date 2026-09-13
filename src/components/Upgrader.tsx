@@ -7,6 +7,7 @@ import { FastControl } from './FastControl';
 import { SkinImage } from './SkinImage';
 import { SoundControls, useGameAudio } from './SoundControls';
 import { primeAudio, scheduleTicks } from '@/lib/sound';
+import { usePerf } from '@/lib/perf';
 import { OwnedActions } from './OwnedActions';
 import { cents, rub, rubF, upgradeChance } from '@/lib/types';
 import { upgradePriceRange } from '@/lib/upgrade';
@@ -16,6 +17,8 @@ const R = 118, C = 2 * Math.PI * R;
 const priceInput = (s: string, empty: number) => s.trim() ? Number(s.trim().replace(',', '.')) : empty;
 
 export function Upgrader() {
+  const perf = usePerf();
+  const [shownCount, setShownCount] = useState(24);
   const { state, lookup, act, busy, fast, toast, transfer, clearTransfer, sound } = useStore();
   const [ids, setIds] = useState<string[]>([]);
   const [extra, setExtra] = useState('');
@@ -234,8 +237,8 @@ export function Upgrader() {
         </div>
         {invalidRange ? <div className="empty red" role="alert">Введите цены от 0. Цена «от» не должна быть больше цены «до».</div> : searchError ? <div className="empty" role="alert">{searchError}<button className="btn btn-ghost" onClick={() => setRetry(n => n + 1)}>Повторить</button></div> : searching ? <div className="empty" role="status">Подбираем предметы…</div> : list.length === 0 ? <div className="empty">{mode === 'chance' ? shownValue > 0 ? 'Под этот шанс предметов нет. Передвиньте ползунок, измените ставку или поиск.' : 'Добавьте предмет или сумму с баланса.' : 'Ничего не найдено. Измените диапазон цен или поиск.'}</div> : (
           <div className="target-list" inert={locked}><div className="item-grid small">
-            {list.map(it => <ItemCard key={it.id} item={it} selected={target?.id === it.id} chance={mode === 'chance' ? upgradeChance(shownValue, cents(it.price)) : undefined} onClick={() => { if (locked) return; setTarget(it); resetRound(); }} />)}
-          </div></div>
+            {(perf === 'lite' ? list.slice(0, shownCount) : list).map(it => <ItemCard key={it.id} item={it} selected={target?.id === it.id} chance={mode === 'chance' ? upgradeChance(shownValue, cents(it.price)) : undefined} onClick={() => { if (locked) return; setTarget(it); resetRound(); }} />)}
+          </div>{perf === 'lite' && list.length > shownCount && <button type="button" className="btn btn-ghost btn-block" style={{ marginTop: 10 }} onClick={() => setShownCount(c => c + 24)}>Показать ещё ({list.length - shownCount})</button>}</div>
         )}
       </div>
       </div>

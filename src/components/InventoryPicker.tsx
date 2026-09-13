@@ -1,5 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
+import { usePerf } from '@/lib/perf';
 import Link from 'next/link';
 import { useStore } from './Store';
 import { ItemCard } from './ItemCard';
@@ -8,6 +9,8 @@ import { rub } from '@/lib/types';
 type Props = { selected: string[]; onChange: (uids: string[]) => void; max: number; title?: string };
 
 export function InventoryPicker({ selected, onChange, max, title = 'Ваш инвентарь' }: Props) {
+  const perf = usePerf();
+  const [shownCount, setShownCount] = useState(40);
   const { state, lookup, loading, toast } = useStore();
   const [q, setQ] = useState('');
   const [sort, setSort] = useState<'desc' | 'asc'>('desc');
@@ -36,8 +39,8 @@ export function InventoryPicker({ selected, onChange, max, title = 'Ваш ин�
         <div className="empty">{state?.inventory.length ? 'Ничего не найдено' : <>Инвентарь пуст. <Link href="/">Откройте кейс</Link>, чтобы получить предметы.</>}</div>
       ) : (
         <div className="picker-box"><div className="item-grid small">
-          {rows.map(o => <ItemCard key={o.uid} item={lookup[o.id]} value={o.value} ownedUid={o.uid} selected={selected.includes(o.uid)} onClick={() => toggle(o.uid)} locked={state?.progress?.locked.includes(o.uid)} />)}
-        </div></div>
+          {(perf === 'lite' ? rows.slice(0, shownCount) : rows).map(o => <ItemCard key={o.uid} item={lookup[o.id]} value={o.value} ownedUid={o.uid} selected={selected.includes(o.uid)} onClick={() => toggle(o.uid)} locked={state?.progress?.locked.includes(o.uid)} />)}
+        </div>{perf === 'lite' && rows.length > shownCount && <button type="button" className="btn btn-ghost btn-block" style={{ marginTop: 10 }} onClick={() => setShownCount(c => c + 40)}>Показать ещё ({rows.length - shownCount})</button>}</div>
       )}
     </div>
   );

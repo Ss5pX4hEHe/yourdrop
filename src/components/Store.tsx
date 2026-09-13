@@ -77,6 +77,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [apply, toast]);
 
   useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => { try { if (document.documentElement.dataset.perf === 'lite' && document.documentElement.dataset.perfMode === 'auto' && !localStorage.getItem('yd_perf_notice')) { localStorage.setItem('yd_perf_notice', '1'); setTimeout(() => toast('Включён лёгкий режим для телефона: без тяжёлых эффектов, чтобы не тормозило. Изменить можно в меню «Тема»', true), 1200); } } catch {} }, [toast]);
 
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
@@ -103,7 +104,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         for (const pending of rewardTimers.current) clearTimeout(pending);
         rewardTimers.current.clear();
         setFastState(false); setSoundState({ muted: false, volume: .25 });
-        try { for (const key of ['yd_fast', 'yd_sound', 'yd_theme', 'yd_custom_theme', 'yd_fx', 'yd_upgrade', 'yd_count', 'yd_cards']) localStorage.removeItem(key); } catch {}
+        try { for (const key of ['yd_fast', 'yd_sound', 'yd_theme', 'yd_custom_theme', 'yd_fx', 'yd_upgrade', 'yd_count', 'yd_cards', 'yd_perf', 'yd_perf_notice']) localStorage.removeItem(key); } catch {}
         document.documentElement.dataset.theme = 'amethyst'; delete document.documentElement.dataset.cards;
         window.dispatchEvent(new Event('yd-reset'));
       }

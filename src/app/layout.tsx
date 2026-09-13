@@ -7,6 +7,7 @@ import './features.css';
 import { StoreProvider } from '@/components/Store';
 import { Header } from '@/components/Header';
 import { AmbientBackground } from '@/components/AmbientBackground';
+import { PERF_BOOT } from '@/lib/perf';
 
 export const metadata: Metadata = {
   title: 'Your Drop — открытие кейсов CS2, апгрейд и контракты',
@@ -15,7 +16,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru">
+    <html lang="ru" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: PERF_BOOT }} /></head>
       <body>
         <AmbientBackground />
         <StoreProvider>

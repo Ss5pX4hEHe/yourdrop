@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef } from 'react';
+import { currentLevel } from '@/lib/perf';
 
 // Cursor light: the head of the trail follows the pointer with a short lerp and a point is
 // recorded every animation frame, so the ribbon is continuous instead of a chain of dots.
@@ -78,7 +79,7 @@ export function AmbientBackground() {
       frame = requestAnimationFrame(paint);
     };
     const move = (event: PointerEvent) => {
-      if (!pointer.matches || motion.matches || document.hidden || event.pointerType === 'touch' || strength <= 0) return;
+      if (!pointer.matches || motion.matches || document.hidden || event.pointerType === 'touch' || strength <= 0 || currentLevel() === 'lite') return;
       target = { x: event.clientX, y: event.clientY };
       if (!frame) frame = requestAnimationFrame(paint);
     };
@@ -94,9 +95,10 @@ export function AmbientBackground() {
     window.addEventListener('blur', leave);
     window.addEventListener('resize', resize);
     window.addEventListener('yd-fx', fx);
+    window.addEventListener('yd-perf', clear);
     document.addEventListener('visibilitychange', visibility);
     motion.addEventListener('change', clear); pointer.addEventListener('change', clear);
-    return () => { clear(); observer.disconnect(); window.removeEventListener('pointermove', move); window.removeEventListener('pointerleave', leave); window.removeEventListener('blur', leave); window.removeEventListener('resize', resize); window.removeEventListener('yd-fx', fx); document.removeEventListener('visibilitychange', visibility); motion.removeEventListener('change', clear); pointer.removeEventListener('change', clear); };
+    return () => { clear(); observer.disconnect(); window.removeEventListener('pointermove', move); window.removeEventListener('pointerleave', leave); window.removeEventListener('blur', leave); window.removeEventListener('resize', resize); window.removeEventListener('yd-fx', fx); window.removeEventListener('yd-perf', clear); document.removeEventListener('visibilitychange', visibility); motion.removeEventListener('change', clear); pointer.removeEventListener('change', clear); };
   }, []);
   return <><div className="ambient-background" aria-hidden="true" /><canvas ref={canvas} className="cursor-light" aria-hidden="true" /></>;
 }

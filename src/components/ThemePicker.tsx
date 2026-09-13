@@ -2,15 +2,18 @@
 import { useEffect, useState } from 'react';
 import { PRESETS, DEFAULT_CUSTOM, applyTheme, readTheme, type CustomTheme } from '@/lib/theme';
 import { DEFAULT_FX, applyEffects, readEffects, type Effects } from './AmbientBackground';
+import { applyPerf, currentLevel, readPerfMode, type PerfMode } from '@/lib/perf';
 
 export function ThemePicker() {
   const [theme, setTheme] = useState('amethyst');
   const [custom, setCustom] = useState<CustomTheme>(DEFAULT_CUSTOM);
   const [fx, setFx] = useState<Effects>(DEFAULT_FX);
+  const [perf, setPerf] = useState<PerfMode>('auto');
+  const [level, setLevel] = useState<'full' | 'lite'>('full');
   useEffect(() => {
     const saved = readTheme(); setTheme(saved.id); setCustom(saved.custom); applyTheme(saved.id, saved.custom);
-    setFx(readEffects());
-    const reset = () => { setTheme('amethyst'); setCustom(DEFAULT_CUSTOM); setFx(DEFAULT_FX); applyTheme('amethyst'); applyEffects(DEFAULT_FX); try { localStorage.removeItem('yd_custom_theme'); localStorage.removeItem('yd_fx'); } catch {} };
+    setFx(readEffects()); setPerf(readPerfMode()); setLevel(currentLevel());
+    const reset = () => { setTheme('amethyst'); setCustom(DEFAULT_CUSTOM); setFx(DEFAULT_FX); applyTheme('amethyst'); applyEffects(DEFAULT_FX); setPerf('auto'); applyPerf('auto'); setLevel(currentLevel()); try { localStorage.removeItem('yd_custom_theme'); localStorage.removeItem('yd_fx'); } catch {} };
     window.addEventListener('yd-reset', reset);
     return () => window.removeEventListener('yd-reset', reset);
   }, []);
@@ -19,6 +22,7 @@ export function ThemePicker() {
     const value = { ...custom, ...next }; setCustom(value); setTheme('custom'); applyTheme('custom', value);
     try { localStorage.setItem('yd_theme', 'custom'); localStorage.setItem('yd_custom_theme', JSON.stringify(value)); } catch {}
   };
+  const choosePerf = (m: PerfMode) => { setPerf(m); applyPerf(m); setLevel(currentLevel()); };
   const effects = (next: Partial<Effects>) => { const value = { ...fx, ...next }; setFx(value); applyEffects(value); };
   return <details className="theme-picker">
     <summary><span className="theme-dot" />Тема</summary>
@@ -32,6 +36,13 @@ export function ThemePicker() {
         <label>Насыщенность фона · {custom.tint}%<input type="range" min="0" max="100" value={custom.tint} onChange={e => tune({ tint: Number(e.target.value) })} /></label>
         <small>Сочетание сохраняется в этом браузере.</small>
       </div>
+      <span className="eyebrow">ПРОИЗВОДИТЕЛЬНОСТЬ</span>
+      <div className="perf-row">
+        <button type="button" aria-pressed={perf === 'auto'} onClick={() => choosePerf('auto')}>Авто</button>
+        <button type="button" aria-pressed={perf === 'full'} onClick={() => choosePerf('full')}>Полный</button>
+        <button type="button" aria-pressed={perf === 'lite'} onClick={() => choosePerf('lite')}>Лёгкий</button>
+      </div>
+      <div className="perf-note">Сейчас: {level === 'lite' ? 'лёгкий режим — без свечений, размытий и следа курсора, списки подгружаются частями' : 'полный режим — все эффекты включены'}. «Авто» выбирает лёгкий на телефонах и слабых устройствах.</div>
       <span className="eyebrow">ЭФФЕКТЫ</span>
       <div className="theme-custom">
         <label>Свет курсора · {fx.trail}% <small style={{ display: 'block', fontSize: 11 }}>до 20% — только фонарик, выше — со шлейфом</small><input type="range" min="0" max="100" value={fx.trail} onChange={e => effects({ trail: Number(e.target.value) })} /></label>

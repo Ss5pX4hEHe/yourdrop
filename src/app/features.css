@@ -142,3 +142,30 @@ html[data-cards=compact] .pick-scroll { grid-auto-columns:minmax(140px,1fr); }
 .header { backdrop-filter:blur(14px); }
 .side-rail { background:var(--bg-2); }
 .item::after { opacity:.7; }
+
+/* ---- lite mode: phones and weak devices (html[data-perf=lite]) ---- */
+html[data-perf=lite] .cursor-light { display:none; }
+html[data-perf=lite] .ambient-background { background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 9%,var(--bg-2)),var(--bg) 42%); }
+html[data-perf=lite] .ambient-background::before,html[data-perf=lite] .ambient-background::after { display:none; }
+html[data-perf=lite] .header,html[data-perf=lite] .cats,html[data-perf=lite] .sticky-actions,html[data-perf=lite] .modal-bg,html[data-perf=lite] .native-modal::backdrop { backdrop-filter:none; -webkit-backdrop-filter:none; }
+html[data-perf=lite] .header { background:var(--bg-2); }
+html[data-perf=lite] .sticky-actions { background:var(--bg-2); box-shadow:none; }
+html[data-perf=lite] .item::after,html[data-perf=lite] .case-card::before,html[data-perf=lite] .panel::before { display:none; }
+html[data-perf=lite] .item,html[data-perf=lite] .case-card,html[data-perf=lite] .panel,html[data-perf=lite] .btn,html[data-perf=lite] .arena-slot,html[data-perf=lite] .stat { box-shadow:none; transition:none; }
+html[data-perf=lite] .item.sel { box-shadow:0 0 0 2px var(--accent); }
+html[data-perf=lite] .item img,html[data-perf=lite] .case-card img,html[data-perf=lite] .arena-art img { filter:none !important; }
+html[data-perf=lite] .case-card:hover,html[data-perf=lite] .item.click:hover { transform:none; }
+html[data-perf=lite] .upgrade-arena .gauge::before { display:none; }
+html[data-perf=lite] .upgrade-arena .gauge svg *,html[data-perf=lite] .gauge svg [filter] { filter:none !important; }
+html[data-perf=lite] .rare-reveal,html[data-perf=lite] .win-bar,html[data-perf=lite] .reveal .item,html[data-perf=lite] .modal,html[data-perf=lite] .modal-bg { animation:none; }
+html[data-perf=lite] .item-grid > .item,html[data-perf=lite] .case-grid > .case-card,html[data-perf=lite] .inventory-grid > .item { content-visibility:auto; contain-intrinsic-size:auto 200px; }
+html[data-perf=lite] .track .item { content-visibility:visible; }
+html[data-perf=lite] .roulette,html[data-perf=lite] .lane { contain:paint; }
+html[data-perf=lite] .track { backface-visibility:hidden; }
+html[data-perf=lite] .toast { animation:none; }
+html[data-perf=lite] .skeleton { animation:none; }
+html[data-perf=lite] .catalog-intro,html[data-perf=lite] .intro-case { background:var(--panel); box-shadow:none; }
+.perf-row { display:flex; gap:4px; padding:4px 8px 8px; }
+.perf-row button { flex:1; padding:7px 4px; border-radius:8px; border:1px solid var(--line); background:var(--bg-2); font-size:12px; font-weight:700; color:var(--muted); }
+.perf-row button[aria-pressed=true] { background:var(--accent-soft); color:var(--accent); border-color:color-mix(in srgb,var(--accent) 50%,var(--line)); }
+.perf-note { font-size:11px; color:var(--muted); padding:0 8px 4px; line-height:1.5; }
