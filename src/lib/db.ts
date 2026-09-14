@@ -1,6 +1,6 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 
-export interface D1Stmt { bind(...values: unknown[]): D1Stmt; first<T = unknown>(): Promise<T | null>; run(): Promise<{ meta: { changes: number } }>; }
+export interface D1Stmt { bind(...values: unknown[]): D1Stmt; first<T = unknown>(): Promise<T | null>; all<T = unknown>(): Promise<{ results: T[] }>; run(): Promise<{ meta: { changes: number } }>; }
 export interface D1 { prepare(sql: string): D1Stmt; }
 
 export async function db(): Promise<D1> {

@@ -169,3 +169,65 @@ html[data-perf=lite] .catalog-intro,html[data-perf=lite] .intro-case { backgroun
 .perf-row button { flex:1; padding:7px 4px; border-radius:8px; border:1px solid var(--line); background:var(--bg-2); font-size:12px; font-weight:700; color:var(--muted); }
 .perf-row button[aria-pressed=true] { background:var(--accent-soft); color:var(--accent); border-color:color-mix(in srgb,var(--accent) 50%,var(--line)); }
 .perf-note { font-size:11px; color:var(--muted); padding:0 8px 4px; line-height:1.5; }
+
+/* ---- sessions ---- */
+.session-list { display:grid; gap:8px; }
+.session { display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-2); }
+.session.current { border-color:color-mix(in srgb,var(--accent) 55%,var(--line)); }
+.session-icon { font-size:22px; width:36px; text-align:center; flex:none; }
+.session-info { flex:1; min-width:0; }
+.session-info b { display:block; font-size:14px; }
+.session-info small { display:block; color:var(--muted); font-size:12px; margin-top:2px; }
+
+/* ---- fullscreen case opening ---- */
+.case-stage { position:relative; }
+.fs-btn { white-space:nowrap; }
+.case-stage.big { position:fixed; inset:0; z-index:80; background:var(--bg); display:flex; flex-direction:column; justify-content:center; gap:18px; padding:20px clamp(16px,4vw,64px); overflow:auto; }
+.case-stage:fullscreen { padding:24px clamp(16px,4vw,64px); }
+.case-stage.big::before { content:""; position:absolute; inset:0; background:radial-gradient(900px 500px at 50% 40%,color-mix(in srgb,var(--accent) 14%,transparent),transparent 65%); pointer-events:none; }
+.case-stage.big > * { position:relative; }
+.fs-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.fs-head b { display:block; font-size:22px; }
+.roulette.big.h { height:300px; }
+.roulette.big .track.h { padding:20px 0; }
+.roulette.big .track.h .item { flex:0 0 240px; height:260px; }
+.roulette.big .track.h .item img { height:150px; }
+.roulette.big .track.h .item .n b { font-size:16px; }
+.roulette.big .track.h .item .p { font-size:17px; }
+.roulette.big.v { height:min(72vh,640px); }
+.roulette.big.v .lane { width:210px; }
+.roulette.big .track.v .item { flex:0 0 190px; height:190px; }
+.roulette.big .track.v .item img { height:100px; }
+.case-stage.big .open-bar { position:static; margin:0; padding:0; background:none; border:0; box-shadow:none; backdrop-filter:none; }
+.case-stage.big .win-bar { max-width:1100px; width:100%; margin:0 auto; }
+.case-stage.big .win-bar .item-grid.small { grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); }
+.case-stage.big .win-bar .sum b { font-size:26px; }
+body.fs-lock { overflow:hidden; }
+@media(max-width:760px) {
+  .case-stage.big { padding:12px; gap:10px; justify-content:flex-start; }
+  .roulette.big.h { height:260px; }
+  .roulette.big .track.h .item { flex:0 0 200px; height:220px; }
+  .roulette.big .track.h .item img { height:120px; }
+  .roulette.big.v .lane { width:170px; }
+  .roulette.big .track.v .item { flex:0 0 150px; height:150px; }
+  .roulette.big .track.v .item img { height:78px; }
+  .case-stage.big .open-bar { position:static; }
+  .case-stage.big .sticky-spacer { display:none; }
+}
+
+/* ---- living background: transform-only animations, cheap on GPU ---- */
+.ambient-background { overflow:hidden; }
+.ambient-background .orb { position:absolute; border-radius:50%; width:640px; height:640px; background:radial-gradient(circle,color-mix(in srgb,var(--accent) 26%,transparent) 0%,color-mix(in srgb,var(--accent) 9%,transparent) 40%,transparent 68%); will-change:transform; animation:orb-drift 46s ease-in-out infinite alternate; pointer-events:none; }
+.ambient-background .o1 { left:-12%; top:-22%; }
+.ambient-background .o2 { right:-14%; top:8%; width:520px; height:520px; animation-duration:58s; animation-delay:-20s; background:radial-gradient(circle,color-mix(in srgb,var(--accent-dark) 30%,transparent) 0%,color-mix(in srgb,var(--accent-dark) 10%,transparent) 40%,transparent 68%); }
+.ambient-background .o3 { left:30%; bottom:-30%; width:720px; height:720px; animation-duration:70s; animation-delay:-35s; opacity:.7; }
+@keyframes orb-drift { 0% { transform:translate3d(0,0,0) scale(1); } 50% { transform:translate3d(60px,-40px,0) scale(1.08); } 100% { transform:translate3d(-40px,50px,0) scale(.96); } }
+.ambient-background .dust { position:absolute; inset:0; }
+.ambient-background .dust i { position:absolute; display:block; border-radius:50%; background:var(--accent); box-shadow:0 0 6px var(--accent); will-change:transform; animation:dust-float linear infinite; }
+@keyframes dust-float { 0% { transform:translate3d(0,0,0); } 25% { transform:translate3d(18px,-30vh,0); } 50% { transform:translate3d(-12px,-60vh,0); } 75% { transform:translate3d(14px,-90vh,0); } 100% { transform:translate3d(0,-120vh,0); } }
+html[data-perf=lite] .ambient-background .o3,html[data-perf=lite] .ambient-background .dust i:nth-child(n+11) { display:none; }
+html[data-perf=lite] .ambient-background .orb { width:420px; height:420px; animation-duration:80s; }
+html[data-perf=lite] .ambient-background .dust i { box-shadow:none; }
+html[data-motion=off] .ambient-background .orb,html[data-motion=off] .ambient-background .dust i { animation-play-state:paused; }
+html[data-motion=low] .ambient-background .dust { display:none; }
+@media (prefers-reduced-motion: reduce) { .ambient-background .orb,.ambient-background .dust i { animation:none; } }

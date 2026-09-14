@@ -100,5 +100,11 @@ export function AmbientBackground() {
     motion.addEventListener('change', clear); pointer.addEventListener('change', clear);
     return () => { clear(); observer.disconnect(); window.removeEventListener('pointermove', move); window.removeEventListener('pointerleave', leave); window.removeEventListener('blur', leave); window.removeEventListener('resize', resize); window.removeEventListener('yd-fx', fx); window.removeEventListener('yd-perf', clear); document.removeEventListener('visibilitychange', visibility); motion.removeEventListener('change', clear); pointer.removeEventListener('change', clear); };
   }, []);
-  return <><div className="ambient-background" aria-hidden="true" /><canvas ref={canvas} className="cursor-light" aria-hidden="true" /></>;
+  return <>
+    <div className="ambient-background" aria-hidden="true">
+      <span className="orb o1" /><span className="orb o2" /><span className="orb o3" />
+      <span className="dust">{Array.from({ length: 24 }, (_, i) => <i key={i} style={{ left: `${(i * 37 + 11) % 100}%`, top: `${(i * 53 + 7) % 100}%`, animationDuration: `${22 + (i % 7) * 5}s`, animationDelay: `${-(i * 3.7) % 30}s`, width: 2 + (i % 3), height: 2 + (i % 3), opacity: .25 + (i % 4) * .12 }} />)}</span>
+    </div>
+    <canvas ref={canvas} className="cursor-light" aria-hidden="true" />
+  </>;
 }

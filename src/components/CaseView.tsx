@@ -25,7 +25,7 @@ function buildStrip(rows: Row[], winner: Item): Item[] {
 }
 
 const EASE: [number, number, number, number] = [.1, .75, .06, 1];
-function Strip({ items, vertical, spinKey, fast, onDone, audible }: { items: Item[]; vertical: boolean; spinKey: number; fast: boolean; onDone: () => void; audible: boolean }) {
+function Strip({ items, vertical, spinKey, fast, onDone, audible, card }: { items: Item[]; vertical: boolean; spinKey: number; fast: boolean; onDone: () => void; audible: boolean; card: number }) {
   const { sound } = useStore();
   const currentSound = useRef(sound);
   currentSound.current = sound;
@@ -33,7 +33,7 @@ function Strip({ items, vertical, spinKey, fast, onDone, audible }: { items: Ite
   useLayoutEffect(() => {
     const el = track.current; const lane = el?.parentElement; if (!el || !lane) return;
     const size = vertical ? lane.clientHeight : lane.clientWidth;
-    const card = vertical ? 136 : 160, step = card + 8;
+    const step = card + 8;
     const centerOf = (i: number) => i * step + card / 2 - size / 2;
     const set = (px: number, t: string) => { el.style.transition = t; el.style.transform = vertical ? `translate3d(0,${-px}px,0)` : `translate3d(${-px}px,0,0)`; };
     const from = centerOf(2);
@@ -54,7 +54,7 @@ function Strip({ items, vertical, spinKey, fast, onDone, audible }: { items: Ite
       }
     }); });
     return () => { cancelAnimationFrame(raf); cancelAnimationFrame(secondFrame); cancelTicks(); };
-  }, [spinKey, vertical, fast, audible]);
+  }, [spinKey, vertical, fast, audible, card]);
   return (
     <div className="lane">
       <div ref={track} className={`track ${vertical ? 'v' : 'h'}`} onTransitionEnd={e => { if (e.target === track.current && e.propertyName === 'transform') onDone(); }}>
@@ -120,6 +120,32 @@ export function CaseView({ box, rows }: Props) {
 
   const vertical = strips.length > 1;
   const odds = useMemo(() => rows, [rows]);
+  const stage = useRef<HTMLDivElement>(null);
+  const [fs, setFs] = useState(false);
+  const [fsFallback, setFsFallback] = useState(false);
+  useEffect(() => {
+    const sync = () => setFs(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', sync);
+    return () => { document.removeEventListener('fullscreenchange', sync); document.body.classList.remove('fs-lock'); };
+  }, []);
+  const toggleFs = async () => {
+    const el = stage.current; if (!el) return;
+    if (fs || fsFallback) {
+      if (document.fullscreenElement) { try { await document.exitFullscreen(); } catch {} }
+      setFsFallback(false); document.body.classList.remove('fs-lock'); return;
+    }
+    if (el.requestFullscreen) { try { await el.requestFullscreen(); return; } catch {} }
+    setFsFallback(true); document.body.classList.add('fs-lock');
+  };
+  const big = fs || fsFallback;
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => { const m = matchMedia('(max-width: 760px)'); const on = () => setNarrow(m.matches); on(); m.addEventListener('change', on); return () => m.removeEventListener('change', on); }, []);
+  const card = big ? (vertical ? (narrow ? 150 : 190) : (narrow ? 200 : 240)) : (vertical ? 136 : 160);
+  useEffect(() => {
+    if (!fsFallback) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setFsFallback(false); document.body.classList.remove('fs-lock'); } };
+    window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey);
+  }, [fsFallback]);
 
   return (
     <>
@@ -132,9 +158,11 @@ export function CaseView({ box, rows }: Props) {
         </div>
       </div>
 
-      <div className={`roulette ${vertical ? 'v' : 'h'}`}>
+      <div ref={stage} className={'case-stage' + (fsFallback ? ' fs-fallback' : '') + (big ? ' big' : '')}>
+      {big && <div className="fs-head"><div><span className="eyebrow">YOUR DROP</span><b>{box.name}</b></div><button className="btn btn-ghost btn-sm" onClick={toggleFs}>Выйти ✕</button></div>}
+      <div className={`roulette ${vertical ? 'v' : 'h'}${big ? ' big' : ''}`}>
         <div className="fade" /><div className="pointer" />
-        {strips.map((s, i) => <Strip key={`${spinKey}-${i}-${strips.length}`} items={s} vertical={vertical} spinKey={spinKey} fast={fast} onDone={onLaneDone} audible={i === 0} />)}
+        {strips.map((s, i) => <Strip key={`${spinKey}-${i}-${strips.length}-${card}`} items={s} vertical={vertical} spinKey={spinKey} fast={fast} onDone={onLaneDone} audible={i === 0} card={card} />)}
       </div>
 
       <div className="open-bar sticky-actions">
@@ -146,6 +174,7 @@ export function CaseView({ box, rows }: Props) {
         </button>
         <FastControl disabled={busy || phase === 'spinning'} />
         <SoundControls />
+        <button type="button" className="btn btn-ghost fs-btn" onClick={toggleFs} title={big ? 'Выйти из полноэкранного режима' : 'Открывать на весь экран'} aria-pressed={big}>{big ? 'Свернуть' : 'На весь экран'}</button>
         {!canPay && state && phase !== 'spinning' && <span className="muted">Не хватает {isBcn ? `${cost - funds} BCN` : rub(cost - funds)}</span>}
       </div>
 
@@ -163,6 +192,7 @@ export function CaseView({ box, rows }: Props) {
           </div>
         </div>
       )}
+      </div>
 
       <section className="odds">
         <h2 className="panel-title" style={{ fontSize: 20 }}>Содержимое кейса</h2>

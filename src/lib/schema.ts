@@ -14,3 +14,10 @@ export const publicLinks = sqliteTable('public_links', {
   profileId: text('profile_id').notNull().unique(),
   created: integer('created').notNull(),
 });
+export const sessions = sqliteTable('sessions', {
+  id: text('id').primaryKey(),
+  profileId: text('profile_id').notNull(),
+  label: text('label').notNull().default(''),
+  created: integer('created').notNull(),
+  lastSeen: integer('last_seen').notNull(),
+});

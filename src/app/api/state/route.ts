@@ -3,10 +3,10 @@ import { act, fresh, settle } from '@/lib/game';
 import { lookupFor } from '@/lib/catalog';
 import type { Action, Result, State } from '@/lib/types';
 import { normalizeProgress } from '@/lib/progression';
-import { cookieHeader, ensurePublicId, readProfileId } from '@/lib/session';
+import { ensurePublicId, resolveSession, withCookies } from '@/lib/session';
 export const dynamic = 'force-dynamic';
 
-function respond(state: State, result: Result, headers: Record<string, string>) {
+function respond(state: State, result: Result, headers: HeadersInit) {
   const ids = new Set<number>();
   for (const i of state.inventory) ids.add(i.id);
   for (const e of state.history) for (const id of e.items) ids.add(id);
@@ -16,9 +16,10 @@ function respond(state: State, result: Result, headers: Record<string, string>) 
 }
 
 async function handle(req: Request, action?: Action) {
-  const id = readProfileId(req) ?? crypto.randomUUID();
-  const headers = { 'Cache-Control': 'no-store', 'Set-Cookie': cookieHeader(req, id) };
   const database = await db();
+  const session = await resolveSession(database, req);
+  const id = session.profileId;
+  const headers = withCookies({ 'Cache-Control': 'no-store' }, session.cookies);
   const publicId = action?.type === 'share' && action.share?.enabled ? await ensurePublicId(database, id) : null;
   await database.prepare('INSERT OR IGNORE INTO profiles (id, state, version) VALUES (?, ?, 0)').bind(id, JSON.stringify(fresh())).run();
   for (let attempt = 0; attempt < 8; attempt++) {
